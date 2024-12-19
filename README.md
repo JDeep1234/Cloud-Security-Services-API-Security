@@ -281,6 +281,220 @@ The following features are used to classify and predict activity types based on 
 10. **requestHeaders_Sec-Fetch-Mode**:
     - Identifies the mode of the request, such as "navigate" for full page loads or "cors" for API interactions, helping to differentiate between user-driven actions and background API calls.
 
+## RANDOM FOREST CODE to find service classification report along with predictions (training&test code)
+
+ ```python
+ import pandas as pd
+from sklearn.model_selection import train_test_split
+from sklearn.feature_extraction.text import TfidfVectorizer
+from sklearn.pipeline import make_pipeline
+from sklearn.ensemble import RandomForestClassifier
+from sklearn.preprocessing import LabelEncoder
+from sklearn.metrics import (
+    accuracy_score, classification_report, confusion_matrix,
+    precision_recall_fscore_support
+)
+import seaborn as sns
+import matplotlib.pyplot as plt
+
+# Load and preprocess training dataset
+data_path = '/content/drive/MyDrive/Colab Notebooks/CSV/balanced_services1.csv'
+df = pd.read_csv(data_path)
+
+df['combined_headers'] = (
+    df['headers_Host'].fillna('') + ' ' +
+    df['url'].fillna('') + ' ' +
+    df['method'].fillna('') + ' ' +
+    df['requestHeaders_Origin'].fillna('') + ' ' +
+    df['requestHeaders_Content_Type'].fillna('') + ' ' +
+    df['responseHeaders_Content_Type'].fillna('') + ' ' +
+    df['requestHeaders_Referer'].fillna('') + ' ' +
+    df['requestHeaders_Accept'].fillna('') + ' ' +
+    df['responseHeaders_Content_Disposition'].fillna('') + ' ' +
+    df['responseHeaders_Content_Encoding'].fillna('')
+)
+
+# Encode labels
+le_service = LabelEncoder()
+df['service_encoded'] = le_service.fit_transform(df['service'])
+
+le_activity = LabelEncoder()
+df['activityType_encoded'] = le_activity.fit_transform(df['activityType'])
+
+# Split data
+X_train, X_test, y_train_service, y_test_service = train_test_split(
+    df['combined_headers'], df['service_encoded'], test_size=0.2, random_state=42
+)
+_, _, y_train_activity, y_test_activity = train_test_split(
+    df['combined_headers'], df['activityType_encoded'], test_size=0.2, random_state=42
+)
+
+# Build and train Service classification model
+pipeline_service = make_pipeline(
+    TfidfVectorizer(max_features=5000),
+    RandomForestClassifier(n_estimators=100, random_state=42)
+)
+pipeline_service.fit(X_train, y_train_service)
+y_pred_service = pipeline_service.predict(X_test)
+
+# Build and train Activity Type classification model
+pipeline_activity = make_pipeline(
+    TfidfVectorizer(max_features=5000),
+    RandomForestClassifier(n_estimators=100, random_state=42)
+)
+pipeline_activity.fit(X_train, y_train_activity)
+y_pred_activity = pipeline_activity.predict(X_test)
+
+# Display metrics
+print("Service Classification Report:")
+print(classification_report(y_test_service, y_pred_service, target_names=le_service.classes_))
+
+print("Activity Type Classification Report:")
+print(classification_report(y_test_activity, y_pred_activity, target_names=le_activity.classes_))
+
+# Confusion Matrices
+sns.heatmap(confusion_matrix(y_test_service, y_pred_service), annot=True, fmt='d', cmap='Blues')
+plt.title("Service Confusion Matrix")
+plt.show()
+
+sns.heatmap(confusion_matrix(y_test_activity, y_pred_activity), annot=True, fmt='d', cmap='Blues')
+plt.title("Activity Type Confusion Matrix")
+plt.show()
+
+# Predict on new dataset
+def predict_new_data(new_data_path, pipeline_service, pipeline_activity, le_service, le_activity):
+    new_df = pd.read_csv(new_data_path)
+    new_df['combined_headers'] = (
+        new_df['headers_Host'].fillna('') + ' ' +
+        new_df['url'].fillna('') + ' ' +
+        new_df['method'].fillna('') + ' ' +
+        new_df['requestHeaders_Origin'].fillna('') + ' ' +
+        new_df['requestHeaders_Content_Type'].fillna('') + ' ' +
+        new_df['responseHeaders_Content_Type'].fillna('') + ' ' +
+        new_df['requestHeaders_Referer'].fillna('') + ' ' +
+        new_df['requestHeaders_Accept'].fillna('') + ' ' +
+        new_df['responseHeaders_Content_Disposition'].fillna('') + ' ' +
+        new_df['responseHeaders_Content_Encoding'].fillna('')
+    )
+
+    # Predictions
+    service_pred = pipeline_service.predict(new_df['combined_headers'])
+    activity_pred = pipeline_activity.predict(new_df['combined_headers'])
+
+    # Decode predictions
+    new_df['predicted_service'] = le_service.inverse_transform(service_pred)
+    new_df['predicted_activityType'] = le_activity.inverse_transform(activity_pred)
+
+    # Save results
+    output_path = 'new_predictions.csv'
+    new_df.to_csv(output_path, index=False)
+    print(f"Predictions saved to '{output_path}'")
+
+new_data_path = '/content/drive/MyDrive/Colab Notebooks/sync_all_traffic_dataset (1) (1).csv'
+predict_new_data(new_data_path, pipeline_service, pipeline_activity, le_service, le_activity)
+
+# Calculate precision, recall, f1-score for each activity type
+precision, recall, f1_score, support = precision_recall_fscore_support(
+    y_test_activity, y_pred_activity, labels=[0, 1, 2, 3], average=None
+)
+
+# Map the encoded values to activity type names
+activity_labels = le_activity.classes_
+
+# Print precision, recall, and f1-score for each activity type
+for i, label in enumerate(activity_labels):
+    print(f"Activity Type: {label}")
+    print(f"Precision: {precision[i]:.4f}")
+    print(f"Recall: {recall[i]:.4f}")
+    print(f"F1-Score: {f1_score[i]:.4f}")
+    print(f"Support: {support[i]}")
+    print()
+
+# Calculate overall accuracy
+accuracy = accuracy_score(y_test_activity, y_pred_activity)
+print(f"Overall Accuracy: {accuracy:.4f}")
+```
+### Example: Identifying API Endpoint Signatures
+
+To classify an API endpoint or an activity, there would be certain signatures within a set of packets. These signatures could vary among them and hence need to be identified. Below is an example for a DropBox application and its activities:
+
+| Service Name | Identified Activities |
+|--------------|------------------------|
+| DropBox      | Login                 |
+|              | Download              |
+|              | Upload                |
+
+### Features for Classification and Prediction of Activity Type
+
+The following features are used to classify and predict activity types based on packet signatures:
+
+1. **headers_Host**: 
+   - **Why Used**: Contains the domain name, which is often a strong indicator of the service being accessed. For example, "www.dropbox.com" is unique to Dropbox, making it a reliable feature to identify the SaaS platform being used.
+2. **URL**: 
+   - **Why Used**: Provides detailed information about the endpoint being accessed, which can help classify specific activities such as login, download, or upload based on URL patterns.
+3. **requestHeaders_Origin**:
+   - **Why Used**: Reveals the origin domain for cross-origin requests, allowing correlation between the request and its originating application or page.
+4. **requestHeaders_Content-Type / headers_Content-Type**: 
+   - **Why Used**: Indicates the nature of the request payload. For instance, JSON often relates to configuration or metadata, while multipart/form-data typically corresponds to file uploads.
+5. **responseHeaders_Content-Type**:
+   - **Why Used**: Shows the format of the response data, which helps in identifying the activity type, such as receiving a file or metadata.
+6. **requestHeaders_Referer / headers_Referer**:
+   - **Why Used**: Provides the source of the request, which can be linked to specific activities like downloading a file from a shared link or navigating between pages.
+7. **requestHeaders_Accept / headers_Accept**:
+   - **Why Used**: Specifies the content types expected in the response, helping to predict activities such as downloading files or fetching JSON metadata.
+8. **responseHeaders_Content-Disposition**:
+   - **Why Used**: Commonly used in file downloads. It specifies whether the content should be displayed inline in the browser or treated as an attachment. The filename included here can further validate download activities.
+9. **responseHeaders_Content-Encoding**:
+   - **Why Used**: Indicates if the response data is compressed, which is often seen in download scenarios to optimize data transfer.
+10. **requestHeaders_Sec-Fetch-Mode**:
+    - **Why Used**: Identifies the mode of the request, such as "navigate" for full page loads or "cors" for API interactions, helping to differentiate between user-driven actions and background API calls.
+
+---
+
+### Explanation of Classification Report Results
+
+The output highlights the precision, recall, F1-score, and support for different activity types classified by the model. Additionally, the overall accuracy of the model is provided. Here's a breakdown:
+
+#### **Predictions Saved**
+- The predictions were successfully saved to the file `new_predictions.csv`.
+
+#### **Activity Type: Download**
+- **Precision**: `1.0000` - Every instance predicted as a download is correct.
+- **Recall**: `1.0000` - Every actual download instance is correctly identified.
+- **F1-Score**: `1.0000` - This is the harmonic mean of precision and recall, indicating perfect classification for downloads.
+- **Support**: `1679` - Total instances of the download activity in the dataset.
+
+#### **Activity Type: Login**
+- **Precision**: `0.9958` - Indicates a small number of misclassifications for login activities.
+- **Recall**: `1.0000` - All actual login instances were correctly identified.
+- **F1-Score**: `0.9979` - Slightly lower than 1 due to minor imbalances between precision and recall.
+- **Support**: `1663` - Total instances of login activity in the dataset.
+
+#### **Activity Type: Unknown**
+- **Precision**: `1.0000` - Perfect precision for identifying unknown activity.
+- **Recall**: `0.9958` - Slightly lower recall suggests a few unknown activity instances were missed.
+- **F1-Score**: `0.9979` - Similar to login, minor misclassifications affect the F1-score slightly.
+- **Support**: `1660` - Total instances of unknown activity in the dataset.
+
+#### **Activity Type: Upload**
+- **Precision**: `1.0000` - Perfectly classifies upload activity.
+- **Recall**: `1.0000` - Identifies all upload activity instances.
+- **F1-Score**: `1.0000` - Perfect classification for upload activities.
+- **Support**: `1552` - Total instances of upload activity in the dataset.
+
+#### **Overall Accuracy**
+- **Overall Accuracy**: `0.9989` - Indicates that the model correctly classified 99.89% of all activities in the dataset.
+
+This report demonstrates the model's high performance, with near-perfect precision, recall, and F1-scores across most activity types. Minor deviations in login and unknown activities highlight areas for potential optimization.
+
+![image](https://github.com/user-attachments/assets/d6ad0c57-cbc6-4f3c-8b78-dad86f5d7e74)
+
+
+
+
+
+      
+
 
 
 
