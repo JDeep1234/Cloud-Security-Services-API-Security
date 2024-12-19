@@ -69,8 +69,19 @@ Use the following command:
 
 1. **Configure Proxy Settings:** Set up your browser or system to route traffic through AnyProxy.  
    - **Manual Proxy Configuration:**  
-     After clicking on "Open Proxy," the above setting appears, and the IP address of the local machine needs to be entered along with the port as `8001`.  
-     Then, open the Chrome browser and type `localhost:8002`, and the above page appears.  
+     After clicking on "Open Proxy," the above setting appears, and the IP address of the local machine needs to be entered along with the port as `8001`.
+![image](https://github.com/user-attachments/assets/b574dd63-95fe-450e-95aa-c39c1fc6d5e5)
+
+
+![image](https://github.com/user-attachments/assets/3a3d022f-0e46-4e81-aaee-2b396b4dce8d)
+
+
+![image](https://github.com/user-attachments/assets/1f64cae4-4c01-46ea-bec7-5ebc05752e01)
+
+ Then, open the Chrome browser and type `localhost:8002`, and the above page appears.  
+
+
+    
 
    Now configure the AnyProxy root certificate in the Chrome browser:  
    - Download the AnyProxy root CA certificate from the AnyProxy UI.  
