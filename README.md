@@ -65,5 +65,31 @@ Use the following command:
 `anyproxy --rule customRule.js`
 
 
+### Step 3: Set Up Your System to Use the Proxy  
+
+1. **Configure Proxy Settings:** Set up your browser or system to route traffic through AnyProxy.  
+   - **Manual Proxy Configuration:**  
+     After clicking on "Open Proxy," the above setting appears, and the IP address of the local machine needs to be entered along with the port as `8001`.  
+     Then, open the Chrome browser and type `localhost:8002`, and the above page appears.  
+
+   Now configure the AnyProxy root certificate in the Chrome browser:  
+   - Download the AnyProxy root CA certificate from the AnyProxy UI.  
+   - Import the root certificate to Chrome: `chrome://settings/?search=manage+certificates`.  
+
+### Step 4: Capture and Analyze Traffic  
+
+Start AnyProxy with the following command:  
+
+```bash  
+anyproxy --port 8001 --rule customRule.js  # if rule is used  
+```  
+
+or  
+
+```bash  
+anyproxy --intercept  # without any rule  
+```
+
+
 
 
