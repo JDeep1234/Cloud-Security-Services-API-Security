@@ -17,43 +17,74 @@ To set up AnyProxy for identifying and analyzing API endpoints and activities as
 ### 1. Create a Custom Rule File  
 
 AnyProxy allows you to write custom rules to handle requests and responses. Create a JavaScript file (e.g., `customRule.js`) to define how you want to handle and analyze traffic.  
+Customize the Service Name and URL Matching
+### Set the Service Name:Replace 'YourServiceName' in the serviceName property with the actual name of the service you want to log (e.g., 'Salesforce').
+### Update URL Matching Conditions:Modify the URL matching conditions in the activityType fields to reflect the actual endpoints of the service you are monitoring. 
 
+For example, if you are logging Salesforce traffic, you might use:
+## requestDetail.url.includes('login.salesforce.com')
+## requestDetail.url.includes('DataImporterUploadServlet')
+## requestDetail.url.includes('PrintableViewDownloadServlet')
 **Example `customRule.js`:**  
 
 ```javascript  
 const fs = require('fs');  
-const path = require('path');  
 
-// Specify the path to the log file  
-const logFilePath = path.join(__dirname, 'anyproxy_traffic_log.txt');  
+function logToFile(content) {  
+  const logStream = fs.createWriteStream('./all_traffic_logs.json', { flags: 'a' });  
+  logStream.write(JSON.stringify(content) + ',\n');  
+  logStream.end();  
+}  
 
 module.exports = {  
-  summary: 'Log all captured traffic to a file',  
+  summary: 'Capture every single detail from the specified service traffic with tagging',  
+
+  // Replace 'YourServiceName' with the actual service name you want to log  
+  serviceName: 'YourServiceName',  
 
   *beforeSendRequest(requestDetail) {  
-    const logEntry = `REQUEST: ${requestDetail.url}\n` +  
-                     `Method: ${requestDetail.requestOptions.method}\n` +  
-                     `Headers: ${JSON.stringify(requestDetail.requestOptions.headers, null, 2)}\n` +  
-                     `Body: ${requestDetail.requestData.toString()}\n\n`;  
+    const request = {  
+      type: 'request',  
+      url: requestDetail.url,  
+      method: requestDetail.requestOptions?.method || 'UNKNOWN',  
+      headers_Host: requestDetail.requestOptions.headers['Host'],  
+      requestHeaders_Origin: requestDetail.requestOptions.headers['Origin'],  
+      requestHeaders_Content_Type: requestDetail.requestOptions.headers['Content-Type'],  
+      requestHeaders_Referer: requestDetail.requestOptions.headers['Referer'] || '',  
+      requestHeaders_Accept: requestDetail.requestOptions.headers['Accept'] || '',  
+      requestHeaders_Sec_Fetch_Mode: requestDetail.requestOptions.headers['Sec-Fetch-Mode'] || '',  
+      service: this.serviceName, // Use the service name defined above  
+      activityType: (requestDetail.url.includes('login.yourservice.com')) ? 'Login' :  
+                    (requestDetail.url.includes('UploadServlet') ||  
+                     requestDetail.url.includes('createJobDefinition')) ? 'Upload' :  
+                    (requestDetail.url.includes('DownloadServlet') ||  
+                     requestDetail.url.includes('exportDialog')) ? 'Download' : 'Unknown'  
+    };  
 
-    // Append the request data to the log file  
-    fs.appendFileSync(logFilePath, logEntry, 'utf8');  
-
+    logToFile(request);  
     return null;  
   },  
 
   *beforeSendResponse(requestDetail, responseDetail) {  
-    const logEntry = `RESPONSE: ${requestDetail.url}\n` +  
-                     `Status Code: ${responseDetail.response.statusCode}\n` +  
-                     `Headers: ${JSON.stringify(responseDetail.response.header, null, 2)}\n` +  
-                     `Body: ${responseDetail.response.body.toString()}\n\n`;  
+    const response = {  
+      type: 'response',  
+      url: requestDetail.url,  
+      method: requestDetail.requestOptions?.method || 'UNKNOWN',  
+      headers_Host: requestDetail.url,  
+      responseHeaders_Content_Type: responseDetail.response.header['Content-Type'] || '',  
+      responseHeaders_Content_Disposition: responseDetail.response.header['Content-Disposition'] || '',  
+      responseHeaders_Content_Encoding: responseDetail.response.header['Content-Encoding'] || '',  
+      service: this.serviceName, // Use the service name defined above  
+      activityType: (requestDetail.url.includes('DownloadServlet') ||  
+                     requestDetail.url.includes('exportDialog')) ? 'Download' :  
+                    (requestDetail.url.includes('UploadServlet') ||  
+                     requestDetail.url.includes('createJobDefinition')) ? 'Upload' : 'Unknown'  
+    };  
 
-    // Append the response data to the log file  
-    fs.appendFileSync(logFilePath, logEntry, 'utf8');  
-
+    logToFile(response);  
     return null;  
   }  
-};  
+};
 ```  
 
 ### 2. Start AnyProxy with Your Custom Rule  
@@ -103,6 +134,113 @@ or
 anyproxy --intercept  # without any rule  
 ```
 
+### Step 5: Convert Captured Traffic to CSV for Analysis  
+
+The previous script captures HTTP traffic and logs Saas service in a JSON format. This JSON file contains detailed information about each request and response, including headers, URLs, methods, and activity types. The following Python script reads this JSON log file and converts the captured traffic into a CSV file for easier analysis.  
+
+#### Step 5.1: Ensure Python Environment is Set Up  
+
+1. **Install Python**: Make sure you have Python installed on your machine. You can download it from [python.org](https://www.python.org/downloads/).  
+2. **Install Required Libraries**: The provided code uses built-in libraries (`json`, `csv`, `os`), so no additional installations are necessary.  
+
+#### Step 5.2: Create the Python Script  
+
+1. **Create a New Python File**:  
+   - Create a new file named `process_logs.py` in the same directory where your `all_traffic_logs.json` file is located.  
+
+2. **Copy the Provided Code**:  
+   - Copy the following code into `process_logs.py`:  
+
+   ```python  
+   import json  
+   import csv  
+   import os  
+
+   def read_logs(log_file):  
+       with open(log_file, 'r', encoding='utf-8') as f:  
+           logs = f.readlines()  
+       return [json.loads(log.strip(',\n')) for log in logs if log.strip(',\n')]  
+
+   def process_logs(logs):  
+       processed_logs = []  
+       for log in logs:  
+           # Filter to include only GET and POST methods and Salesforce URLs  
+           if log.get('method') in ['GET', 'POST'] and 'salesforce.com' in log.get('url', ''):  
+               processed_log = {  
+                   'headers_Host': log.get('headers_Host', ''),  
+                   'url': log.get('url', ''),  
+                   'method': log.get('method', 'UNKNOWN'),  
+                   'requestHeaders_Origin': log.get('requestHeaders_Origin', ''),  
+                   'requestHeaders_Content_Type': log.get('requestHeaders_Content_Type', ''),  
+                   'responseHeaders_Content_Type': log.get('responseHeaders_Content_Type', ''),  
+                   'responseHeaders_Content_Disposition': log.get('responseHeaders_Content_Disposition', ''),  
+                   'responseHeaders_Content_Encoding': log.get('responseHeaders_Content_Encoding', ''),  
+                   'requestHeaders_Referer': log.get('requestHeaders_Referer', ''),  
+                   'requestHeaders_Accept': log.get('requestHeaders_Accept', ''),  
+                   'requestHeaders_Sec_Fetch_Mode': log.get('requestHeaders_Sec_Fetch_Mode', ''),  
+                   'service': log.get('service', 'Salesforce'),  
+                   'activityType': log.get('activityType', 'Unknown')  
+               }  
+               processed_logs.append(processed_log)  
+       return processed_logs  
+
+   def write_to_csv(processed_logs, output_file):  
+       headers = [  
+           'headers_Host', 'url', 'method', 'requestHeaders_Origin',  
+           'requestHeaders_Content_Type', 'responseHeaders_Content_Type',  
+           'requestHeaders_Referer', 'requestHeaders_Accept',  
+           'responseHeaders_Content_Disposition', 'responseHeaders_Content_Encoding',  
+           'requestHeaders_Sec_Fetch_Mode', 'service', 'activityType'  
+       ]  
+
+       # Remove existing file if it exists to avoid appending to old data  
+       if os.path.exists(output_file):  
+           os.remove(output_file)  
+
+       with open(output_file, mode='w', newline='', encoding='utf-8') as file:  
+           writer = csv.DictWriter(file, fieldnames=headers)  
+           writer.writeheader()  
+
+           for log in processed_logs:  
+               row = {key: log.get(key, '') for key in headers}  
+               writer.writerow(row)  
+
+   # Paths to input and output files  
+   logs = read_logs('./all_traffic_logs.json')  
+   processed_logs = process_logs(logs)  
+   write_to_csv(processed_logs, './all_traffic_dataset.csv')  
+
+   print("Dataset created: all_traffic_dataset.csv")
+
+### Step 5.3:Adjust the URL Filtering
+If you want to capture traffic from a different service, modify the condition in the process_logs function:
+
+#### Replace 'yourservice.com' with the actual domain of the service you are interested in.
+
+ ```python 
+if log.get('method') in ['GET', 'POST'] and 'yourservice.com' in log.get('url', ''):
+
+### Step 4: Run the Python Script
+
+#### Open a Terminal or Command Prompt:
+1. Navigate to the directory where your `process_logs.py` file is located.
+
+#### Run the Script:
+2. Execute the script using Python:
+
+   ```bash
+   python process_logs.py
+   ```
+
+#### Check for Output:
+3. After running the script, you should see a message indicating that the dataset has been created:
+
+   ```yaml
+   Dataset created: all_traffic_dataset.csv
+   ```
+
+#### Verify the CSV File:
+4. Open `all_traffic_dataset.csv` in a spreadsheet application (like Excel) or a text editor to review the processed logs.
 
 
 
