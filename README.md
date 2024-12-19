@@ -1,5 +1,5 @@
 # Cloud-Security-Services-API-Security
-Identify Cloud Services & Activities using AI/ML algorithms on Live Traffic
+Identify Cloud Services & Activities using AI/ML algorithms on Live Traffic and goal is to identify cloud service providers, identify the API endpoints, its activities, identify the order of API endpoints used by a user and get a pattern in them.  In order to achieve this, first it needs to discover API endpoints and discover the activities provided by them. These endpoints and activities are to be discovered through machine learning algorithms based on live traffic and for live traffic initially we could start with SASE public cloud service providers like DropBox, SalesForce, Google Docs, OneDrive, Box etc and later it could support other public and private API providers
 
 ## Setting Up AnyProxy
 
@@ -238,9 +238,22 @@ if log.get('method') in ['GET', 'POST'] and 'yourservice.com' in log.get('url', 
    ```yaml
    Dataset created: all_traffic_dataset.csv
    ```
-
 #### Verify the CSV File:
 4. Open `all_traffic_dataset.csv` in a spreadsheet application (like Excel) or a text editor to review the processed logs.
+
+
+## AI/ML For Analysis of the Endpoints
+
+### Identifying API Endpoint Signatures:
+
+To classify an API endpoint or an activity, there would be certain signatures within a set of packets. These signatures could vary among them and hence need to be identified. Below is an example for a DropBox application and its activities:
+
+| Service Name | Identified Activities |
+|--------------|------------------------|
+| DropBox      | Login                 |
+|              | Download              |
+|              | Upload                |
+
 
 
 
