@@ -256,4 +256,33 @@ To classify an API endpoint or an activity, there would be certain signatures wi
 
 
 
+### Features for Classification and Prediction of Activity Type
+
+The following features are used to classify and predict activity types based on packet signatures:
+
+1. **headers_Host**: 
+   - Contains the domain name, which is often a strong indicator of the service being accessed. For example, "www.dropbox.com" is unique to Dropbox, making it a reliable feature to identify the SaaS platform being used.
+2. **URL**: 
+   - Provides detailed information about the endpoint being accessed, which can help classify specific activities such as login, download, or upload based on URL patterns.
+3. **requestHeaders_Origin**:
+   - Reveals the origin domain for cross-origin requests, allowing correlation between the request and its originating application or page.
+4. **requestHeaders_Content-Type / headers_Content-Type**: 
+   - Indicates the nature of the request payload. For instance, JSON often relates to configuration or metadata, while multipart/form-data typically corresponds to file uploads.
+5. **responseHeaders_Content-Type**:
+   - Shows the format of the response data, which helps in identifying the activity type, such as receiving a file or metadata.
+6. **requestHeaders_Referer / headers_Referer**:
+   - Provides the source of the request, which can be linked to specific activities like downloading a file from a shared link or navigating between pages.
+7. **requestHeaders_Accept / headers_Accept**:
+   - Specifies the content types expected in the response, helping to predict activities such as downloading files or fetching JSON metadata.
+8. **responseHeaders_Content-Disposition**:
+   - Commonly used in file downloads. It specifies whether the content should be displayed inline in the browser or treated as an attachment. The filename included here can further validate download activities.
+9. **responseHeaders_Content-Encoding**:
+   - Indicates if the response data is compressed, which is often seen in download scenarios to optimize data transfer.
+10. **requestHeaders_Sec-Fetch-Mode**:
+    - Identifies the mode of the request, such as "navigate" for full page loads or "cors" for API interactions, helping to differentiate between user-driven actions and background API calls.
+
+
+
+
+
 
