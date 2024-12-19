@@ -281,6 +281,42 @@ The following features are used to classify and predict activity types based on 
 10. **requestHeaders_Sec-Fetch-Mode**:
     - Identifies the mode of the request, such as "navigate" for full page loads or "cors" for API interactions, helping to differentiate between user-driven actions and background API calls.
 
+
+### Example: Identifying API Endpoint Signatures
+
+To classify an API endpoint or an activity, there would be certain signatures within a set of packets. These signatures could vary among them and hence need to be identified. Below is an example for a DropBox application and its activities:
+
+| Service Name | Identified Activities |
+|--------------|------------------------|
+| DropBox      | Login                 |
+|              | Download              |
+|              | Upload                |
+
+### Features for Classification and Prediction of Activity Type
+
+The following features are used to classify and predict activity types based on packet signatures:
+
+1. **headers_Host**: 
+   - **Why Used**: Contains the domain name, which is often a strong indicator of the service being accessed. For example, "www.dropbox.com" is unique to Dropbox, making it a reliable feature to identify the SaaS platform being used.
+2. **URL**: 
+   - **Why Used**: Provides detailed information about the endpoint being accessed, which can help classify specific activities such as login, download, or upload based on URL patterns.
+3. **requestHeaders_Origin**:
+   - **Why Used**: Reveals the origin domain for cross-origin requests, allowing correlation between the request and its originating application or page.
+4. **requestHeaders_Content-Type / headers_Content-Type**: 
+   - **Why Used**: Indicates the nature of the request payload. For instance, JSON often relates to configuration or metadata, while multipart/form-data typically corresponds to file uploads.
+5. **responseHeaders_Content-Type**:
+   - **Why Used**: Shows the format of the response data, which helps in identifying the activity type, such as receiving a file or metadata.
+6. **requestHeaders_Referer / headers_Referer**:
+   - **Why Used**: Provides the source of the request, which can be linked to specific activities like downloading a file from a shared link or navigating between pages.
+7. **requestHeaders_Accept / headers_Accept**:
+   - **Why Used**: Specifies the content types expected in the response, helping to predict activities such as downloading files or fetching JSON metadata.
+8. **responseHeaders_Content-Disposition**:
+   - **Why Used**: Commonly used in file downloads. It specifies whether the content should be displayed inline in the browser or treated as an attachment. The filename included here can further validate download activities.
+9. **responseHeaders_Content-Encoding**:
+   - **Why Used**: Indicates if the response data is compressed, which is often seen in download scenarios to optimize data transfer.
+10. **requestHeaders_Sec-Fetch-Mode**:
+    - **Why Used**: Identifies the mode of the request, such as "navigate" for full page loads or "cors" for API interactions, helping to differentiate between user-driven actions and background API calls.
+
 ## RANDOM FOREST CODE to find service classification report along with predictions (training&test code)
 
  ```python
@@ -414,43 +450,6 @@ for i, label in enumerate(activity_labels):
 accuracy = accuracy_score(y_test_activity, y_pred_activity)
 print(f"Overall Accuracy: {accuracy:.4f}")
 ```
-### Example: Identifying API Endpoint Signatures
-
-To classify an API endpoint or an activity, there would be certain signatures within a set of packets. These signatures could vary among them and hence need to be identified. Below is an example for a DropBox application and its activities:
-
-| Service Name | Identified Activities |
-|--------------|------------------------|
-| DropBox      | Login                 |
-|              | Download              |
-|              | Upload                |
-
-### Features for Classification and Prediction of Activity Type
-
-The following features are used to classify and predict activity types based on packet signatures:
-
-1. **headers_Host**: 
-   - **Why Used**: Contains the domain name, which is often a strong indicator of the service being accessed. For example, "www.dropbox.com" is unique to Dropbox, making it a reliable feature to identify the SaaS platform being used.
-2. **URL**: 
-   - **Why Used**: Provides detailed information about the endpoint being accessed, which can help classify specific activities such as login, download, or upload based on URL patterns.
-3. **requestHeaders_Origin**:
-   - **Why Used**: Reveals the origin domain for cross-origin requests, allowing correlation between the request and its originating application or page.
-4. **requestHeaders_Content-Type / headers_Content-Type**: 
-   - **Why Used**: Indicates the nature of the request payload. For instance, JSON often relates to configuration or metadata, while multipart/form-data typically corresponds to file uploads.
-5. **responseHeaders_Content-Type**:
-   - **Why Used**: Shows the format of the response data, which helps in identifying the activity type, such as receiving a file or metadata.
-6. **requestHeaders_Referer / headers_Referer**:
-   - **Why Used**: Provides the source of the request, which can be linked to specific activities like downloading a file from a shared link or navigating between pages.
-7. **requestHeaders_Accept / headers_Accept**:
-   - **Why Used**: Specifies the content types expected in the response, helping to predict activities such as downloading files or fetching JSON metadata.
-8. **responseHeaders_Content-Disposition**:
-   - **Why Used**: Commonly used in file downloads. It specifies whether the content should be displayed inline in the browser or treated as an attachment. The filename included here can further validate download activities.
-9. **responseHeaders_Content-Encoding**:
-   - **Why Used**: Indicates if the response data is compressed, which is often seen in download scenarios to optimize data transfer.
-10. **requestHeaders_Sec-Fetch-Mode**:
-    - **Why Used**: Identifies the mode of the request, such as "navigate" for full page loads or "cors" for API interactions, helping to differentiate between user-driven actions and background API calls.
-
----
-
 ### Explanation of Classification Report Results
 
 The output highlights the precision, recall, F1-score, and support for different activity types classified by the model. Additionally, the overall accuracy of the model is provided. Here's a breakdown:
