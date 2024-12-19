@@ -53,14 +53,17 @@ module.exports = {
 
     return null;  
   }  
-};
+};  
+```  
 
-
-## 2. Start AnyProxy with Your Custom Rule  
+### 2. Start AnyProxy with Your Custom Rule  
 
 Run AnyProxy with your custom rule file to start capturing traffic.  
 
-```bash  
-anyproxy --rule customRule.js
+Use the following command:  
+
+`anyproxy --rule customRule.js`
+
+
 
 
