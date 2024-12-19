@@ -70,6 +70,8 @@ Use the following command:
 1. **Configure Proxy Settings:** Set up your browser or system to route traffic through AnyProxy.  
    - **Manual Proxy Configuration:**  
      After clicking on "Open Proxy," the above setting appears, and the IP address of the local machine needs to be entered along with the port as `8001`.
+
+     
 ![image](https://github.com/user-attachments/assets/b574dd63-95fe-450e-95aa-c39c1fc6d5e5)
 
 
