@@ -652,7 +652,7 @@ The provided Python script leverages transformer-based models for performing ser
 - **Average Activity Confidence**: Indicates the reliability of activity predictions.
 - **Overall Confidence**: A combined measure of both predictions' accuracy.
 
-# Model Performance Summary
+## Model Performance Summary
 
 ## Confidence Scores
 - **Average Service Confidence Score**: `0.7836`
