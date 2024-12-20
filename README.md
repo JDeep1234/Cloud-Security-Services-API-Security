@@ -489,6 +489,78 @@ This report demonstrates the model's high performance, with near-perfect precisi
 ![image](https://github.com/user-attachments/assets/d6ad0c57-cbc6-4f3c-8b78-dad86f5d7e74)
 
 
+# Service and Activity Type Classification Report
+
+## Service Confusion Matrix
+![image](https://github.com/user-attachments/assets/95f2d50a-0819-47a9-b709-e2b6d91f2106)
+
+
+The confusion matrix for service classification displays the performance of the model across 11 different services. The matrix highlights the following key points:
+- Most predictions are accurate, as the diagonal entries dominate.
+- Some minor misclassifications occurred, e.g., Icedrive and OneDrive have slight confusion.
+- Overall, the results are highly accurate, showcasing the robustness of the classifier.
+
+### Classification Report for Services
+| Service       | Precision | Recall | F1-Score | Support |
+|---------------|-----------|--------|----------|---------|
+| 4shared       | 1.00      | 1.00   | 1.00     | 1376    |
+| Box           | 1.00      | 1.00   | 1.00     | 991     |
+| Dropbox       | 1.00      | 1.00   | 1.00     | 701     |
+| Icedrive      | 0.94      | 0.98   | 0.96     | 1157    |
+| Jumpshare     | 1.00      | 1.00   | 1.00     | 232     |
+| Koofr         | 1.00      | 1.00   | 1.00     | 247     |
+| MediaFire     | 1.00      | 1.00   | 1.00     | 369     |
+| OneDrive      | 0.98      | 0.94   | 0.96     | 1125    |
+| Sync.com      | 1.00      | 1.00   | 1.00     | 77      |
+| Zippyshare    | 1.00      | 1.00   | 1.00     | 176     |
+| pCloud        | 1.00      | 1.00   | 1.00     | 103     |
+
+**Overall Metrics for Services:**
+- **Accuracy:** 0.99
+- **Macro Avg Precision:** 0.99
+- **Macro Avg Recall:** 0.99
+- **Macro Avg F1-Score:** 0.99
+
+## Activity Type Confusion Matrix
+![image](https://github.com/user-attachments/assets/a9956d2d-d208-4d57-ba10-64290b2a4f80)
+
+
+The confusion matrix for activity type classification demonstrates the performance of the model for four activity types: Download, Login, Unknown, and Upload. Key observations include:
+- Perfect classification for Download, Login, and Upload.
+- Minor confusion exists between Unknown and Login.
+- Overall, the classifier performs excellently across all categories.
+
+### Classification Report for Activity Types
+| Activity Type | Precision | Recall | F1-Score | Support |
+|---------------|-----------|--------|----------|---------|
+| Download      | 1.00      | 1.00   | 1.00     | 1679    |
+| Login         | 1.00      | 1.00   | 1.00     | 1663    |
+| Unknown       | 1.00      | 1.00   | 1.00     | 1660    |
+| Upload        | 1.00      | 1.00   | 1.00     | 1552    |
+
+**Overall Metrics for Activity Types:**
+- **Accuracy:** 1.00
+- **Macro Avg Precision:** 1.00
+- **Macro Avg Recall:** 1.00
+- **Macro Avg F1-Score:** 1.00
+
+## Key Insights
+1. **Service Classification**:
+   - High precision and recall for all services except slight confusion in Icedrive and OneDrive.
+   - The results indicate a reliable and robust classifier for service identification.
+
+2. **Activity Type Classification**:
+   - Nearly perfect classification for all activity types.
+   - Minimal confusion between Unknown and Login, but it does not significantly affect the overall accuracy.
+
+3. **Model Performance**:
+   - Both classifiers exhibit exceptional performance, with accuracies of 99% and 100%, respectively.
+   - High F1-scores indicate a balanced performance between precision and recall for all categories.
+
+
+
+
+
 
 
 
