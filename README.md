@@ -637,11 +637,13 @@ The provided Python script leverages transformer-based models for performing ser
 - **Purpose**: Service prediction.
 - **Strengths**: Multilingual capabilities, fine-tuned on natural language inference (NLI) tasks.
 - **This multilingual model can perform natural language inference (NLI) on 100 languages and is therefore also suitable for multilingual zero-shot classification. The underlying mDeBERTa-v3-base model was pre-trained by Microsoft on the CC100 multilingual dataset with 100 languages. The model was then fine-tuned on the XNLI dataset and on the multilingual-NLI-26lang-2mil7 dataset.**
+- **link for refrence https://huggingface.co/MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7**
 
 ### `MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli`
 - **Purpose**: Activity prediction.
 - **Strengths**: General-purpose NLI model with state-of-the-art performance on various benchmarks.
 - **This model was trained on the MultiNLI, Fever-NLI and Adversarial-NLI (ANLI) datasets, which comprise 763 913 NLI hypothesis-premise pairs. This base model outperforms almost all large models on the ANLI benchmark. The base model is DeBERTa-v3-base from Microsoft. The v3 variant of DeBERTa substantially outperforms previous versions of the model by including a different pre-training objective, see annex 11 of the original DeBERTa paper.**
+- **link for reference https://huggingface.co/MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli**
 
 
 
