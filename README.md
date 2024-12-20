@@ -556,6 +556,113 @@ The confusion matrix for activity type classification demonstrates the performan
 3. **Model Performance**:
    - Both classifiers exhibit exceptional performance, with accuracies of 99% and 100%, respectively.
    - High F1-scores indicate a balanced performance between precision and recall for all categories.
+  
+# ZSL(ZERO SHOT LEARNING) Better Approach
+
+## Overview
+The provided Python script leverages transformer-based models for performing service and activity type predictions on Secure Access Service Edge (SASE) datasets using zero-shot classification. Unlike traditional machine learning techniques such as Random Forest, this approach utilizes pre-trained transformer models that offer high accuracy and flexibility without requiring task-specific fine-tuning.
+
+
+
+## Features of the this approach
+
+1. **Transformer Models for Classification**:
+   - Uses **`MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7`** for service prediction.
+   - Uses **`MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli`** for activity prediction.
+   - These models are pre-trained on large datasets, enabling them to generalize well for zero-shot tasks.
+
+2. **Zero-Shot Classification**:
+   - Eliminates the need for labeled data and fine-tuning by predicting based on pre-defined labels.
+   - Leverages Hugging Face's `pipeline` for zero-shot classification, simplifying the implementation.
+
+3. **Error Handling**:
+   - Includes robust exception handling during text preparation, dataset loading, and model inference.
+
+4. **Confidence Scoring**:
+   - Calculates average confidence scores for both service and activity predictions, providing insights into the model's reliability.
+
+5. **Device Compatibility**:
+   - Automatically checks for GPU availability to accelerate inference.
+
+6. **Integration**:
+   - Processes multiple datasets and combines predictions with test data, saving the results as CSV files for further analysis.
+
+## Detailed Workflow
+
+### 1. Dataset Handling
+- The `load_dataset` function loads CSV files using Pandas. Errors like missing files or invalid data are handled gracefully.
+
+### 2. Text Feature Preparation
+- The script prepares input text features for classification:
+  - **Service Text**: Combines `headers_Host` and `url` fields.
+  - **Activity Text**: Combines fields like `url`, `method`, and request/response headers.
+
+### 3. Zero-Shot Classification
+- Performs classification using pre-trained transformer models:
+  - **`perform_zero_shot_classification`** predicts labels based on candidate service and activity types.
+  - Model predictions include both the top label and its confidence score.
+
+### 4. Confidence Calculation
+- Average confidence scores for service and activity predictions are computed.
+- Overall confidence is calculated by averaging service and activity confidence scores.
+
+### 5. Results Saving
+- Predictions and test data are combined into a single DataFrame and saved as a CSV file for each dataset.
+
+
+## Transformer Models vs Random Forest
+
+### Advantages of Transformer Models:
+1. **Pre-trained Knowledge**:
+   - Models like `mDeBERTa-v3` and `DeBERTa-v3` have been pre-trained on large corpora, making them adaptable to various tasks without additional training.
+2. **Zero-Shot Capabilities**:
+   - Random Forest requires labeled training data, whereas transformer models can infer predictions based on pre-defined labels without prior exposure.
+3. **Contextual Understanding**:
+   - Transformers consider the entire input context, leading to more accurate predictions, especially for text data.
+4. **Scalability**:
+   - The same model can handle multiple tasks (e.g., service and activity prediction) without modification.
+
+### Disadvantages of Random Forest:
+1. **Feature Engineering**:
+   - Requires extensive manual feature extraction and preprocessing.
+2. **Lack of Generalization**:
+   - Performs poorly on unseen data compared to transformers.
+3. **Limited Capability**:
+   - Not well-suited for tasks requiring contextual understanding of text.
+
+
+## Highlighted Models
+
+### `MoritzLaurer/mDeBERTa-v3-base-xnli-multilingual-nli-2mil7`
+- **Purpose**: Service prediction.
+- **Strengths**: Multilingual capabilities, fine-tuned on natural language inference (NLI) tasks.
+
+### `MoritzLaurer/DeBERTa-v3-base-mnli-fever-anli`
+- **Purpose**: Activity prediction.
+- **Strengths**: General-purpose NLI model with state-of-the-art performance on various benchmarks.
+
+
+
+## Output and Results
+- The script processes four datasets, making predictions for both service and activity types.
+- Predictions are stored along with confidence scores in CSV files for easy analysis.
+
+### Confidence Scores:
+- **Average Service Confidence**: Indicates the reliability of service predictions.
+- **Average Activity Confidence**: Indicates the reliability of activity predictions.
+- **Overall Confidence**: A combined measure of both predictions' accuracy.
+
+  ![image](https://github.com/user-attachments/assets/f4187f77-7c86-415c-b46f-a208e2e22ffd)
+
+  ![image](https://github.com/user-attachments/assets/1201bd0d-8c12-4172-89ce-4ea64a6dba2c)
+
+  ![image](https://github.com/user-attachments/assets/c1b2feae-3c41-45a1-8a03-d7e943f5f422)
+
+
+
+## Conclusion
+This script demonstrates a modern, efficient approach to text classification using transformer models. By leveraging zero-shot capabilities, it achieves high accuracy without requiring labeled data, making it a superior alternative to traditional methods like Random Forest for SASE-related tasks.
+
 
 
 
