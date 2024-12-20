@@ -652,6 +652,18 @@ The provided Python script leverages transformer-based models for performing ser
 - **Average Activity Confidence**: Indicates the reliability of activity predictions.
 - **Overall Confidence**: A combined measure of both predictions' accuracy.
 
+# Model Performance Summary
+
+## Confidence Scores
+- **Average Service Confidence Score**: `0.7836`
+  - Indicates the confidence level of the model in accurately classifying SASE services. A score of 0.7836 reflects a high level of trust in the predictions for service categories.
+
+- **Average Activity Confidence Score**: `0.5786`
+  - Represents the confidence level of the model in identifying specific activity types. While slightly lower than the service confidence, it still provides useful predictions with reasonable certainty.
+
+- **Average Overall Confidence Score**: `0.6811`
+  - This is the mean of the service and activity confidence scores, providing an overall indication of the model's performance. A score of 0.6811 shows balanced performance between the two prediction tasks.
+
   ![image](https://github.com/user-attachments/assets/f4187f77-7c86-415c-b46f-a208e2e22ffd)
 
   ![image](https://github.com/user-attachments/assets/1201bd0d-8c12-4172-89ce-4ea64a6dba2c)
