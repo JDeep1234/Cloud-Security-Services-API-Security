@@ -1185,11 +1185,18 @@ predictions_df = predictor.predict(test_df)
 
 # Network Traffic Classification Results Analysis
 
-## Overall Confidence Scores
-| Metric | Confidence | Percentage |
-|--------|------------|------------|
-| Service Confidence | 0.9790 | 97.90% |
-| Activity Confidence | 0.9898 | 98.98% |
+## Activity Confidence using Codebert + Google Flan T5 using Unknown Saas service Google notebook lm
+
+![image](https://github.com/user-attachments/assets/00fabe13-2f12-49c5-93f6-7461e41fb9da)
+
+## Service Confidence ZSL using unknown Saas service Google notebook lm
+
+![image](https://github.com/user-attachments/assets/e422bfb3-a991-474a-8273-fc0c034254c0)
+
+
+
+
+
 
 ## Service Classification Results
 
