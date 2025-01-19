@@ -1179,17 +1179,20 @@ predictor = CodeBertPredictorWithZSL(
 predictions_df = predictor.predict(test_df)
 ```
 
-## Output Format
+## Codebert + ZSL for Known Activities 
 
 ![image](https://github.com/user-attachments/assets/73030677-5c2c-4332-8880-67aa0ac55262)
 
 # Network Traffic Classification Results Analysis
 
-## Activity Confidence using Codebert + Google Flan T5 using Unknown Saas service Google notebook lm
+## Activity Confidence using Codebert + ZSL unknown Saas Applications Google Notebook LM
+![image](https://github.com/user-attachments/assets/066062dc-4752-4173-96b2-659b422dac6a)
+
+## Activity Confidence using Codebert + Google Flan T5 using Unknown Saas service Google Notebook LM
 
 ![image](https://github.com/user-attachments/assets/00fabe13-2f12-49c5-93f6-7461e41fb9da)
 
-## Service Confidence ZSL using unknown Saas service Google notebook lm
+## Service Confidence ZSL using unknown Saas service Google Notebook LM
 
 ![image](https://github.com/user-attachments/assets/e422bfb3-a991-474a-8273-fc0c034254c0)
 
