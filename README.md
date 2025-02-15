@@ -86,6 +86,63 @@ module.exports = {
   }  
 };
 ```  
+**Example `customRule.js`: without tagging for zsl appraoch**  
+
+```javascript  
+const fs = require('fs');
+const path = require('path');
+
+// Path to the logs directory and log file
+const logDir = path.join(__dirname, 'logs');
+const logFile = path.join(logDir, 'mongodb.json');
+
+// Ensure the logs directory exists
+if (!fs.existsSync(logDir)) fs.mkdirSync(logDir);
+
+// Helper function to log data to the file
+function logToFile(content) {
+  const logStream = fs.createWriteStream(logFile, { flags: 'a' });
+  logStream.write(JSON.stringify(content) + ',\n');
+  logStream.end();
+}
+
+module.exports = {
+
+  // Intercept and log request details
+  *beforeSendRequest(requestDetail) {
+    const request = {
+      type: 'request',
+      url: requestDetail.url,
+      method: requestDetail.requestOptions?.method || 'UNKNOWN',
+      headers_Host: requestDetail.requestOptions.headers['Host'] || '',
+      requestHeaders_Origin: requestDetail.requestOptions.headers['Origin'] || '',
+      requestHeaders_Content_Type: requestDetail.requestOptions.headers['Content-Type'] || '',
+      requestHeaders_Referer: requestDetail.requestOptions.headers['Referer'] || '',
+      requestHeaders_Accept: requestDetail.requestOptions.headers['Accept'] || '',
+      body: requestDetail.requestData ? requestDetail.requestData.toString() : null
+    };
+
+    logToFile(request);
+    return null;
+  },
+
+  // Intercept and log response details
+  *beforeSendResponse(requestDetail, responseDetail) {
+    const response = {
+      type: 'response',
+      url: requestDetail.url,
+      method: requestDetail.requestOptions?.method || 'UNKNOWN',
+      headers_Host: requestDetail.url,
+      responseHeaders_Content_Type: responseDetail.response.header['Content-Type'] || '',
+      body: responseDetail.response.body ? responseDetail.response.body.toString() : null
+    };
+
+    logToFile(response);
+    return null;
+  }
+};
+
+```  
 
 ### 2. Start AnyProxy with Your Custom Rule  
 
@@ -149,7 +206,8 @@ The previous script captures HTTP traffic and logs Saas service in a JSON format
    - Create a new file named `process_logs.py` in the same directory where your `all_traffic_logs.json` file is located.  
 
 2. **Copy the Provided Code**:  
-   - Copy the following code into `process_logs.py`:  
+   - Copy the following code into `process_logs.py`with tagging :
+   
 
    ```python  
    import json  
@@ -211,6 +269,96 @@ The previous script captures HTTP traffic and logs Saas service in a JSON format
    write_to_csv(processed_logs, './all_traffic_dataset.csv')  
 
    print("Dataset created: all_traffic_dataset.csv")
+
+
+   ```  
+** Copy the following code into `process_logs.py`without tagging :**  
+
+```python
+import json
+import csv
+import urllib.parse  #Parsing URL-encoded data
+import os
+
+def read_logs(log_file):
+    with open(log_file, 'r', encoding='utf-8') as f:
+        logs = f.readlines()
+    return [json.loads(log.strip(',\n')) for log in logs if log.strip(',\n')]
+
+def process_logs_with_keys(logs):
+    processed_logs = []
+    for log in logs:
+        processed_log = {
+            'headers_Host': log.get('headers_Host', ''),
+            'url': log.get('url', ''),
+            'method': log.get('method', 'UNKNOWN'),
+            'requestHeaders_Origin': log.get('requestHeaders_Origin', ''),
+            'requestHeaders_Content_Type': log.get('requestHeaders_Content_Type', ''),
+            'responseHeaders_Content_Type': log.get('responseHeaders_Content_Type', ''),
+            'requestHeaders_Referer': log.get('requestHeaders_Referer', ''),
+            'requestHeaders_Accept': log.get('requestHeaders_Accept', ''),
+            'request_keys': extract_keys(log.get('body', ''), log.get('type', 'request') == 'request'),
+            'response_keys': extract_keys(log.get('body', ''), log.get('type', 'response') == 'response'),
+        }
+        processed_logs.append(processed_log)
+    return processed_logs
+
+def extract_keys(body_data, is_request):
+    if not body_data:
+        return "none"
+    try:
+        if "=" in body_data and "&" in body_data:
+            # URL-encoded body
+            parsed_data = urllib.parse.parse_qs(body_data)
+            return "#".join(parsed_data.keys())
+        else:
+            # JSON-structured body
+            body_json = json.loads(body_data)
+            if isinstance(body_json, dict):
+                return "#".join(body_json.keys())
+            elif isinstance(body_json, list):
+                return "#".join([str(i) for i in range(len(body_json))])
+            else:
+                return "unknown_structure"
+    except:
+        return "unknown_format"
+
+def write_to_csv(processed_logs, output_file):
+    headers = [
+        'headers_Host', 'url', 'method', 'requestHeaders_Origin',
+        'requestHeaders_Content_Type', 'responseHeaders_Content_Type',
+        'requestHeaders_Referer', 'requestHeaders_Accept',
+        'request_keys', 'response_keys'
+    ]
+
+    # Remove existing file if it exists to avoid appending to the old data
+    if os.path.exists(output_file):
+        os.remove(output_file)
+
+    with open(output_file, mode='w', newline='', encoding='utf-8') as file:
+        writer = csv.DictWriter(file, fieldnames=headers)
+        writer.writeheader()
+
+        for log in processed_logs:
+            row = {key: log.get(key, '') for key in headers}
+            writer.writerow(row)
+
+# Paths to input and output files
+log_file = "C:\\Users\\jnyanadeep\\Downloads\\logs\\circleci.json"
+output_csv = "C:\\Users\\jnyanadeep\\Downloads\\circleci.csv"
+
+# Processing steps
+logs = read_logs(log_file)
+processed_logs = process_logs_with_keys(logs)
+write_to_csv(processed_logs, output_csv)
+
+print(f"Processed dataset created: {output_csv}")
+
+
+```  
+
+
+
 
 ### Step 5.3:Adjust the URL Filtering
 If you want to capture traffic from a different service, modify the condition in the process_logs function:
