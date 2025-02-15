@@ -272,7 +272,7 @@ The previous script captures HTTP traffic and logs Saas service in a JSON format
 
 
    ```  
-** Copy the following code into `process_logs.py`without tagging :**  
+**Copy the following code into `process_logs.py`without tagging :**  
 
 ```python
 import json
