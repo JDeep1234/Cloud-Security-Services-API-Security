@@ -14,7 +14,7 @@ To set up AnyProxy for identifying and analyzing API endpoints and activities as
 
 **Note:** Step 2 is optional and is used only to save the decrypted traffic as a text file for further analysis. It can be skipped, and Step 3 can be implemented after Step 1.  
 
-### 1. Create a Custom Rule File  
+### 1. Create a Custom Rule File   
 
 AnyProxy allows you to write custom rules to handle requests and responses. Create a JavaScript file (e.g., `customRule.js`) to define how you want to handle and analyze traffic.  
 Customize the Service Name and URL Matching
