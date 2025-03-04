@@ -1,4 +1,4 @@
-# Cloud-Security-Services-API-Security  
+# Cloud-Security-Services-API-Security     
 Identify Cloud Services & Activities using AI/ML algorithms on Live Traffic and goal is to identify cloud service providers, identify the API endpoints, its activities, identify the order of API endpoints used by a user and get a pattern in them.  In order to achieve this, first it needs to discover API endpoints and discover the activities provided by them. These endpoints and activities are to be discovered through machine learning algorithms based on live traffic and for live traffic initially we could start with SASE public cloud service providers like DropBox, SalesForce, Google Docs, OneDrive, Box etc and later it could support other public and private API providers
 
 
